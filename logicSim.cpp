@@ -20,11 +20,15 @@ int Randomsig() {
 Facility Unit[200]; 
 
 
+
+
+
 class AND {
      public:
         int input1=-1;
         int input2=-1;
         int output=-1;
+        int lastout=0;
         string s_input1;
         string s_input2;
         string s_output;
@@ -32,7 +36,24 @@ class AND {
         string soutvalue(){return s_output;}
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=(input1 & input2); return -1;}
         void init(){ input1=-1;input2=-1;output=-1;}
+        bool in(string pad){if(pad!=s_input1 && pad!=s_input2) return false; return true;}
 };
+class OR {
+     public:
+        int input1=-1;
+        int input2=-1;
+        int output=-1;
+        int lastout=0;
+        string s_input1;
+        string s_input2;
+        string s_output;
+        void setvalues(string pad, int value){if(pad==s_input1)input1=value;if(pad==s_input2)input2=value;}
+        string soutvalue(){return s_output;}
+        int outvalue(){if(input1!=-1 && input2!=-1 ) return output=(input1 | input2); return -1;}
+        void init(){ input1=-1;input2=-1;output=-1;}
+        bool in(string pad){if(pad!=s_input1 && pad!=s_input2) return false; return true;}
+};
+
 
 vector <reference_wrapper<AND>> units;
 
@@ -43,10 +64,9 @@ public:
     AND *hradlo;
     int value;
     string input; 
-    zapisAND(AND *hradlo,int value,string input){this->hradlo=hradlo;this->value=value;this->input=input;};
+    int val;
+    zapisAND(AND *hradlo,int value,string input,int val){this->hradlo=hradlo;this->value=value;this->input=input;this->val=val;};
 };
-
-
 
 class INSignal : public Process {
     public:
@@ -59,31 +79,36 @@ class INSignal : public Process {
         void Behavior() {
             unsigned int val=0;  //for each  unit 
             for (;val<units.size();val++){
-                AND &l=units.at(0);
-                (new zapisAND(&l,value,input))->Activate();
+                AND &l=units.at(val);
+                (new zapisAND(&l,value,input,val))->Activate();
             }
     }
 
 };
 
-
-
  void zapisAND::Behavior() { 
-
-        Seize(Unit[1]);
+        if(!hradlo->in(input)) return;
+        Seize(Unit[val]);
         hradlo->setvalues(input,value);
+
         if(hradlo->outvalue()!=-1)    
-        {
-                printf("in %f\n",Time);
-                printf("signal %i %i \n",hradlo->input2,hradlo->input1);
-                Wait(10);
-                printf("signal  %i \n",hradlo->output);
-                printf("out %f\n",Time);
-                hradlo->init();
-            (new INSignal(hradlo->soutvalue().c_str(),hradlo->output))->Activate();
+        {       
+                Wait(2);
+                Print("%i %i  %f\n",val,hradlo->output,Time);
+                hradlo->lastout=hradlo->output;
+                int  val1=hradlo->outvalue();
+                hradlo->init();  
+
+            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
         }
-        Release(Unit[1]);
+        else
+        {   
+            Print("%i %i   %s guessed %f\n",val,hradlo->lastout,Time,input.c_str());
+        }
+        Release(Unit[val]);
     }
+
+
 
 class Generator : public Event {       
 private:
@@ -91,7 +116,7 @@ private:
 
       (new INSignal("IN1",Randomsig()))->Activate();
       (new INSignal("IN2",Randomsig()))->Activate();
-    Activate(Time+Exponential(20));
+    Activate(Time+Exponential(25));
 
    }
 };
@@ -104,12 +129,19 @@ int main(){ // links for each unit
      u.s_output="OUT";
     AND &obj_ref1=std::ref(u);
     units.push_back(obj_ref1);
+    AND s;
+    s.s_input1="OUT";
+    s.s_input2="OUT";
+     s.s_output="xx";
+    AND &objj_ref1=std::ref(s);
+    units.push_back(objj_ref1);
 
   SetOutput("test.out");
-   Init(0,1000); 
+  Print("id    value   time \n");
+   Init(0,200); 
    (new Generator())->Activate();
     Run();    
-
+SIMLIB_statistics.Output();
 
 
 

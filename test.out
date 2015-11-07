@@ -1,0 +1,20 @@
+id    value   time 
+0 0   IN1 guessed 0.000000
+0 1  2.000000
+1 1  4.000000
+0 1   IN1 guessed 111.239347
+0 0  113.239347
+1 0  115.239347
+0 0   IN1 guessed 122.344825
+0 0  124.344825
+1 0  126.344825
+0 0   IN1 guessed 149.648980
+0 1  151.648980
+1 1  153.648980
+#
+# SIMLIB run-time statistics:
+#    StartTime  = 0
+#    EndTime    = 200
+#    EventCount = 60
+#    StepCount  = 0
+#
