@@ -24,13 +24,17 @@ int Randomsig() {
 }
 // facility for each Unit 
 Facility Units[MAX_UNIT]; 
+string TstatOut=""; 
 vector<string> unit_names;
 vector<string>INsig;
 vector<string>Outsig;
 string CLK="";
+string TstatCLK="";
+bool clocksyn=false;
 int CLK_freq=0;
 int CLK_S=0;
 int IN_EXP=0; //Exponencial generate signal
+
 // class implements  unit NOT with two outputs and one input 
 class NOT {
      public:
@@ -227,6 +231,10 @@ class INSignal : public Process {
         INSignal(string name,int value){this->input=name;this->value=value;};  //create signal 
     private:
         void Behavior() {
+
+            if(std::find(Outsig.begin(), Outsig.end(), input) != Outsig.end())
+                    TstatOut+=input+"\t"+to_string(value)+"\t"+to_string(Time)+"\n";
+
             unsigned int val=0;  //for each  unit  check and set 
             for (;val<units.size();val++){
                 Unit &l=units.at(val);
@@ -248,19 +256,32 @@ class INSignal : public Process {
 //check and set NOT Unit 
 //===============
  void zapisNOT::Behavior() { 
-        if(!hradlo->in(input)) return; //if signal name  is not the input of the Unit return
+        if(!hradlo->in(input) && !clocksyn) return;//if signal name  is not the input of the Unit return
         Seize(Units[val]);  // one process at time 
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
         {       
-                Wait(hradlo->delay); // delay of the Unit
-                hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
-                hradlo->lastout=hradlo->output; // lastvalue set
-                int  val1=hradlo->outvalue(); // sup val
-                hradlo->init();   // init values 
+               if(!clocksyn)
+                {   
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+"-"+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
 
-            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate(); // create new signal with the name of the output 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                }
+                else if(input==CLK && CLK_S==1)
+                {
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+"-"+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+
+                }
         }
 
         Release(Units[val]); // leave 
@@ -269,19 +290,31 @@ class INSignal : public Process {
 //check and set AND Unit 
 //===============
  void zapisAND::Behavior() { 
-        if(!hradlo->in(input)) return; //if signal name  is not the input of the Unit return
+        if(!hradlo->in(input) && !clocksyn) return; //if signal name  is not the input of the Unit return
         Seize(Units[val]);  // one process at time 
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
-        {       
-                Wait(hradlo->delay); // delay of the Unit
-                hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
-                hradlo->lastout=hradlo->output; // lastvalue set
-                int  val1=hradlo->outvalue(); // sup val
-                hradlo->init();   // init values 
+        {       if(!clocksyn)
+                {   
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
 
-            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate(); // create new signal with the name of the output 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                }
+                else if(input==CLK && CLK_S==1)
+                {
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+
+                }
         }
 
         Release(Units[val]); // leave 
@@ -290,19 +323,32 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisOR::Behavior() { 
-        if(!hradlo->in(input)) return;
+        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
         {       
-                Wait(hradlo->delay);
-                hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
-                hradlo->lastout=hradlo->output;
-                int  val1=hradlo->outvalue();
-                hradlo->init();  
+                if(!clocksyn)
+                {   
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
 
-            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                }
+                else if(input==CLK && CLK_S==1)
+                {
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+
+                }
         }
 
         Release(Units[val]);
@@ -311,19 +357,32 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNOR::Behavior() { 
-        if(!hradlo->in(input)) return;
+        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
         {       
-                Wait(hradlo->delay);
-                hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
-                hradlo->lastout=hradlo->output;
-                int  val1=hradlo->outvalue();
-                hradlo->init();  
+               if(!clocksyn)
+                {   
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
 
-            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                }
+                else if(input==CLK && CLK_S==1)
+                {
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+
+                }
         }
 
         Release(Units[val]);
@@ -333,19 +392,32 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNAND::Behavior() { 
-        if(!hradlo->in(input)) return;
+        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
         {       
-                Wait(hradlo->delay);
-                hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
-                hradlo->lastout=hradlo->output;
-                int  val1=hradlo->outvalue();
-                hradlo->init();  
+               if(!clocksyn)
+                {   
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
 
-            (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+                }
+                else if(input==CLK && CLK_S==1)
+                {
+                    Wait(hradlo->delay); // delay of the Unit
+                    hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
+                    hradlo->lastout=hradlo->output; // lastvalue set
+                    int  val1=hradlo->outvalue(); // sup val
+                    hradlo->init();   // init values 
+                    (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
+
+                }
         }
 
         Release(Units[val]);
@@ -361,15 +433,31 @@ private:
         for (unsigned i=0; i < INsig.size(); i++)   
         {
             (new INSignal(INsig[i],rand))->Activate();
-            if(INsig.size()>1 && i!=0)
-                Print("\t|\t");
-            Print("Signal: %s Value: %i  Time: %f",INsig[i].c_str(),rand,Time);
+            Print("%i\t",rand);
             rand=Randomsig();
         }
-        Print("\n");
+        Print("%f\n",Time);
         Activate(Time+Exponential(50));
    }
 };
+
+class CLKGenerator :public Event{
+void Behavior() {
+            (new INSignal(CLK,CLK_S=!CLK_S))->Activate();
+        TstatCLK+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
+        Activate(Time+CLK_freq);
+   }
+};
+
+
+
+
+
+
+
+
+
+
 int StructureUnitsNum(char *file, int *AND_count,int *OR_count,int *NOT_count,int *NAND_count,int *NOR_count,int *SYNCLOCK_count)
 {
    
@@ -400,24 +488,24 @@ unsigned int val=0;  //for each  unit  check and set
         Unit &l=units.at(val);
         if((&l)->type=="AND")
             {Print("#=======================================================\n");
-            Print("# %s Statistic - Unit(%s)\nID\tINPUT\tOUTPUT\tTIME \n%s\n",(&l)->And->name.c_str(),(&l)->type.c_str(),((&l)->And->Tstat).c_str() );
-            Print("#=======================================================\n");}
+            Print("# %s Statistic - Unit(%s)(IN:%s,%s)(OUT:%s)\n\nID\tINPUT\tOUTPUT\tTIME \n%s",(&l)->And->name.c_str(),(&l)->type.c_str(),(&l)->And->s_input1.c_str(),(&l)->And->s_input2.c_str(),(&l)->And->s_output.c_str(),((&l)->And->Tstat).c_str() );
+            Print("#=======================================================\n\n");}
         else if((&l)->type=="NAND")
              {Print("#=======================================================\n");
-            Print("# %s Statistic - Unit(%s)\nID\tINPUT\tOUTPUT\tTIME \n%s\n",(&l)->Nand->name.c_str(),(&l)->type.c_str(),((&l)->Nand->Tstat).c_str() );
-            Print("#=======================================================\n");}
+            Print("# %s Statistic - Unit(%s)(IN:%s,%s)(OUT:%s)\nID\tINPUT\tOUTPUT\tTIME \n%s",(&l)->Nand->name.c_str(),(&l)->type.c_str(),(&l)->Nand->s_input1.c_str(),(&l)->Nand->s_input2.c_str(),(&l)->Nand->s_output.c_str(),((&l)->Nand->Tstat).c_str() );
+            Print("#=======================================================\n\n");}
         else if((&l)->type=="NOR")
              {Print("#=======================================================\n");
-            Print("# %s Statistic - Unit(%s)\nID\tINPUT\tOUTPUT\tTIME \n%s\n",(&l)->Nor->name.c_str(),(&l)->type.c_str(),((&l)->Nor->Tstat).c_str() );
-            Print("#=======================================================\n");}
+            Print("# %s Statistic - Unit(%s)(IN:%s,%s)(OUT:%s)\nID\tINPUT\tOUTPUT\tTIME \n%s",(&l)->Nor->name.c_str(),(&l)->type.c_str(),(&l)->Nor->s_input1.c_str(),(&l)->Nor->s_input2.c_str(),(&l)->Nor->s_output.c_str(),((&l)->Nor->Tstat).c_str() );
+            Print("#=======================================================\n\n");}
         else if((&l)->type=="OR")
              {Print("#=======================================================\n");
-            Print("# %s Statistic - Unit(%s)\nID\tINPUT\tOUTPUT\tTIME \n%s\n",(&l)->Or->name.c_str(),(&l)->type.c_str(),((&l)->Or->Tstat).c_str() );
-            Print("#=======================================================\n");}
+            Print("# %s Statistic - Unit(%s)(IN:%s,%s)(OUT:%s)\nID\tINPUT\tOUTPUT\tTIME \n%s",(&l)->Or->name.c_str(),(&l)->type.c_str(),(&l)->Or->s_input1.c_str(),(&l)->Or->s_input2.c_str(),(&l)->Or->s_output.c_str(),((&l)->Or->Tstat).c_str() );
+            Print("#=======================================================\n\n");}
         else if((&l)->type=="NOT")
              {Print("#=======================================================\n");
-            Print("# %s Statistic - Unit(%s)\nID\tINPUT\tOUTPUT\tTIME \n%s\n",(&l)->Not->name.c_str(),(&l)->type.c_str(),((&l)->Not->Tstat).c_str() );
-            Print("#=======================================================\n");}
+            Print("# %s Statistic - Unit(%s)(IN:%s)(OUT:%s)\nID\tINPUT\tOUTPUT\tTIME \n%s",(&l)->Not->name.c_str(),(&l)->type.c_str(),(&l)->Not->s_input1.c_str(),(&l)->Not->s_output.c_str(),((&l)->Not->Tstat).c_str() );
+            Print("#=======================================================\n\n");}
     }
     return;
 }
@@ -446,9 +534,14 @@ else
 type="SYNCLOCK";
 
 for( std::string line; getline( input, line ); )
-{
-    if(line.find(":type:"+type)!=std::string::npos)
+{   
+
+    if(line.find("#")!=std::string::npos && line.find("#")==0 )
+        continue;
+    if(line.find(":type:"+type)!=std::string::npos && !synclock)
     {   
+     
+
          
         if(name=="")
             {  
@@ -463,7 +556,7 @@ for( std::string line; getline( input, line ); )
 
         continue;
     }
-    else if(line.find(":delay:")!=std::string::npos)
+    else if(line.find(":delay:")!=std::string::npos && !synclock)
     {
         if(name=="")
         {   
@@ -477,7 +570,7 @@ for( std::string line; getline( input, line ); )
         else continue;
 
     }
-    else if((line.find(".INPUT:")!=std::string::npos))
+    else if((line.find(".INPUT:")!=std::string::npos) && !synclock) 
     {
         if(line.find(":PINLIST:")==std::string::npos)
             return false;
@@ -516,7 +609,7 @@ for( std::string line; getline( input, line ); )
             }else continue;
     }
 
-    else if((line.find(".OUTPUT:")!=std::string::npos))
+    else if((line.find(".OUTPUT:")!=std::string::npos)&& !synclock)
     {
 
         if(line.find(":PINLIST:")==std::string::npos)
@@ -548,7 +641,7 @@ for( std::string line; getline( input, line ); )
                 
             }else continue;
     }
-    else if((line.find("IN:")!=std::string::npos))
+    else if((line.find("IN:")!=std::string::npos) && !synclock)
     {
         string signal=line.substr(line.find("IN:")+3);
         if(std::find(INsig.begin(), INsig.end(), signal) != INsig.end())
@@ -556,7 +649,7 @@ for( std::string line; getline( input, line ); )
         INsig.push_back(signal);
 
     }
-    else if((line.find("OUT:")!=std::string::npos))
+    else if((line.find("OUT:")!=std::string::npos) && !synclock)
     {
         string signal=line.substr(line.find("OUT:")+4);
         if(std::find(Outsig.begin(), Outsig.end(), signal) != Outsig.end())
@@ -565,13 +658,15 @@ for( std::string line; getline( input, line ); )
     }
     else if(synclock && line.find(":type:"+type)!=std::string::npos)
     {
+           
+
         if(CLK!="" && CLK!=line.substr(0,line.find(":type:")))
             return false;
-
         CLK=line.substr(0,line.find(":type:"+type));
     }
     else if(synclock && line.find(":freq:")!=std::string::npos)
     {
+
         if(CLK!="" && CLK!=line.substr(0,line.find(":freq:")))
             return false;
         CLK=line.substr(0,line.find(":freq:"));
@@ -579,7 +674,7 @@ for( std::string line; getline( input, line ); )
     }
     else if(synclock && line.find(":start_logic:")!=std::string::npos)
     {
-        if(CLK!="" && CLK!=line.substr(0,line.find(":freq:")))
+        if(CLK!="" && CLK!=line.substr(0,line.find(":start_logic:")))
             return false;
         CLK=line.substr(0,line.find(":start_logic:"));
         CLK_S=stoi((line.substr(line.find(":start_logic:")+13)));
@@ -721,12 +816,45 @@ int main(int argc, char **argv){ // links for each unit
             units.push_back(obj_ref1);
         }
     }
-    unit_names.clear();
+    if(SYNCLOCK_count>0)
+    {   if(SYNCLOCK_count!=1)
+            return 10;
+        else
+            if(!LoadUnit(argv[1],NULL,NULL,NULL,NULL,NULL,true))
+                return 10;
+        if(std::find(unit_names.begin(), unit_names.end(), CLK) != unit_names.end())
+                return 10;
+        if(std::find(INsig.begin(), INsig.end(), CLK) != INsig.end())
+                return 10;
+        if(std::find(Outsig.begin(), Outsig.end(), CLK) != Outsig.end())
+                return 10; 
+        clocksyn=true;  
+        CLK_S=!CLK_S;
+    }
+        unit_names.clear();
+    
+
     SetOutput("test.out");
-    Print("#=======================================================\nGlobal input signals\n#=======================================================\n");
+    
+    Print("#=======================================================\n#Global input signals\n#=======================================================\n");
+    unsigned int val=0;
+    Print("#");
+    for(;val<INsig.size();val++)
+        Print("%s\t",INsig[val].c_str());
+    Print("Time\n");
+
     Init(0,500); 
     (new Generator())->Activate();
-    Run();   
+    if(clocksyn)
+        (new CLKGenerator())->Activate();
+    Run();
+
+    Print("#=======================================================\n#Global output signals\n#=======================================================\n");
+    Print("#Signal\tValue\tTime\n");
+    Print("%s\n",TstatOut.c_str());  
+    Print("#=======================================================\n#CLK signal\n#=======================================================\n");
+    Print("#Value\tTime\n"); 
+    Print("%s\n",TstatCLK.c_str());
     Tstatprint();
     SIMLIB_statistics.Output();
     return true;
