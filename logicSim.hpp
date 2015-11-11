@@ -136,17 +136,17 @@ public:
 };
 #define MAX_UNIT 200 //MAX number of units in one circuit
 // facility for each Unit 
-Facility Units[MAX_UNIT]; 
-string TstatOut=""; 
-vector<string> unit_names;
-vector<string>INsig;
-vector<string>Outsig;
-string CLK="";
-string TstatCLK="";
-bool clocksyn=false;
-int CLK_freq=0;
-int CLK_S=0;
-int IN_EXP=0; //Exponencial generate signal
+Facility Units[MAX_UNIT];   // each unit has its own facility for set up pin values 
+vector<string> unit_names; //names of units 
+vector<string>INsig; //Input signals
+vector<string>Outsig; //Output signals
+string CLK=""; //CLK 
+string TstatCLK=""; // CLK Statistic
+bool clocksyn=false; //CLK enabled 
+int CLK_freq=0; // frequency in ns
+int CLK_S=0; //start value 
 
+//Functions Statistic,Error
 void Tstatprint();
+void ErrorFun();
 #endif

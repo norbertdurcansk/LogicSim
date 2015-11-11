@@ -1,7 +1,7 @@
-HradloAnd:type:AND
-HradloAnd:delay:10
-.INPUT:HradloAnd:PINLIST:IN1:IN2
-.OUTPUT:HradloAnd:PINLIST:OUTAND
+HradloAndxx:type:AND
+HradloAndxx:delay:10
+.INPUT:HradloAndxx:PINLIST:IN1:IN2
+.OUTPUT:HradloAndxx:PINLIST:OUTAND
 IN:IN1
 IN:IN2
 OUT:OUT1
