@@ -10,6 +10,8 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "logicSim.hpp"
 
 // random number 0...1
@@ -36,18 +38,41 @@ class INSignal : public Process {
                     Tstats[input]+=to_string(value)+"\t"+to_string(Time)+"\n";
 
             unsigned int val=0;  //for each  unit  check and set 
-            for (;val<units.size();val++){
+            for (;val<units.size();val++)
+            {
                 Unit &l=units.at(val);
+
+
                 if((&l)->type=="AND")
+                {
+                    if(!(&l)->And->in(input) && !clocksyn)
+                        continue;
                     (new zapisAND((&l)->And,value,input,val))->Activate();
+                }
                 else if((&l)->type=="OR")
+                {
+                    if(!(&l)->Or->in(input) && !clocksyn)
+                        continue;
                     (new zapisOR((&l)->Or,value,input,val))->Activate();
+                }
                 else if((&l)->type=="NOR")
+                {
+                    if(!(&l)->Nor->in(input) && !clocksyn)
+                        continue;
                     (new zapisNOR((&l)->Nor,value,input,val))->Activate();
+                }
                 else if((&l)->type=="NAND")
+                {
+                     if(!(&l)->Nand->in(input) && !clocksyn)
+                        continue;
                     (new zapisNAND((&l)->Nand,value,input,val))->Activate();
+                }
                 else if((&l)->type=="NOT")
+                {
+                     if(!(&l)->Not->in(input) && !clocksyn)
+                        continue;
                     (new zapisNOT((&l)->Not,value,input,val))->Activate();
+                }
             }
     }
 };
@@ -55,7 +80,6 @@ class INSignal : public Process {
 //check and set NOT Unit 
 //===============
  void zapisNOT::Behavior() { 
-        if(!hradlo->in(input) && !clocksyn) return;//if signal name  is not the input of the Unit return
         Seize(Units[val]);  // one process at time 
         hradlo->setvalues(input,value); // set values of the input 
 
@@ -91,7 +115,6 @@ class INSignal : public Process {
 //check and set AND Unit 
 //===============
  void zapisAND::Behavior() { 
-        if(!hradlo->in(input) && !clocksyn) return; //if signal name  is not the input of the Unit return
         Seize(Units[val]);  // one process at time 
         hradlo->setvalues(input,value); // set values of the input 
 
@@ -126,7 +149,6 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisOR::Behavior() { 
-        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
@@ -162,7 +184,6 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNOR::Behavior() { 
-        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
@@ -199,7 +220,6 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNAND::Behavior() { 
-        if(!hradlo->in(input) && !clocksyn) return;
         Seize(Units[val]);
         hradlo->setvalues(input,value);
 
@@ -679,11 +699,18 @@ int main(int argc, char **argv){ // links for each unit
         file.erase(0,file.find("/")+1);
     file=file.substr(0,file.find("."));
 
+    // if make run was not performed move files to result folder only
     string output="result/"+file+"/"+file+".dat";
     string gnuout="result/"+file+"/"+"GNU_"+file+".dat";
 
-  
-
+    struct stat info;
+    string path="result/"+file;
+    if(( stat( path.c_str(), &info ) != 0 ) || (!info.st_mode & S_IFDIR ) )
+    {
+       output="result/"+file+".dat";
+       gnuout="result/GNU_"+file+".dat";
+    }
+    
     //SIMULATION PROCESS
     Init(0,500); //time of simulation 
     (new Generator())->Activate();

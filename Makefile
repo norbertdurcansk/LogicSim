@@ -5,7 +5,9 @@ CFLAGS  = -std=c++11 -Wall -Wextra -pedantic -O2
 default: logicSim
 
 logicSim:  logicSim.o 
-	@$(CC) $(CFLAGS)  logicSim.o  -o logicSim -lsimlib -lm 	
+	@$(CC) $(CFLAGS)  logicSim.o  -o logicSim -lsimlib -lm
+	@-rm -rf result
+	@mkdir result 	
 
 logicSim.o:   logicSim.cpp 
 	@$(CC) $(CFLAGS)  -c logicSim.cpp  -lsimlib -lm 
