@@ -439,16 +439,15 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     {   
         if(line.find("#")!=std::string::npos && line.find("#")==0 )
             continue;
-
-
         //Find name of the unit
-
         if(line.find(name+":delay:")!=std::string::npos && !synclock)
         {
             
             line.erase(0,line.find(name+":delay:")+name.length()+7);
             try{
                 delay=stoi(line);
+                if(delay<0)
+                    return false;
             }catch(...){return false;}
             
         }
@@ -502,6 +501,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             CLK=line.substr(0,line.find(":freq:"));
             try{
                 CLK_freq=stoi((line.substr(line.find(":freq:")+6)));
+                if(CLK_freq<0)
+                    return false;
             }catch(...){return false;}
         }
         else if(synclock && line.find(":start_logic:")!=std::string::npos)
@@ -511,6 +512,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             CLK=line.substr(0,line.find(":start_logic:"));
             try{
                 CLK_S=stoi((line.substr(line.find(":start_logic:")+13)));
+                if(CLK_S!=0 and CLK_S!=1)
+                    return false;
             }catch(...){return false;}
         }
         else if(line.find("INIT:")!=std::string::npos)
@@ -522,6 +525,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
                 try
                 {
                     initvalue=stoi((line.substr(line.find(":")+1)));
+                    if(initvalue!=0 and initvalue!=1)
+                        return false;
                 }catch(...){return false;}
             }
 
