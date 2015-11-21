@@ -398,6 +398,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     string two=""; //in2
     string three=""; //output
     string type;    //type of the unit
+    int initvalue=-1;
+    string initsig="";
 
     if(AND_unit!=NULL)
     type="AND";
@@ -445,7 +447,9 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         {
             
             line.erase(0,line.find(name+":delay:")+name.length()+7);
-            delay=stoi(line);
+            try{
+                delay=stoi(line);
+            }catch(...){return false;}
             
         }
         else if((line.find(".INPUT:"+name+":PINLIST:")!=std::string::npos) && !synclock) 
@@ -496,14 +500,31 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             if(CLK!="" && CLK!=line.substr(0,line.find(":freq:")))
                 return false;
             CLK=line.substr(0,line.find(":freq:"));
-            CLK_freq=stoi((line.substr(line.find(":freq:")+6)));
+            try{
+                CLK_freq=stoi((line.substr(line.find(":freq:")+6)));
+            }catch(...){return false;}
         }
         else if(synclock && line.find(":start_logic:")!=std::string::npos)
         {
             if(CLK!="" && CLK!=line.substr(0,line.find(":start_logic:")))
                 return false;
             CLK=line.substr(0,line.find(":start_logic:"));
-            CLK_S=stoi((line.substr(line.find(":start_logic:")+13)));
+            try{
+                CLK_S=stoi((line.substr(line.find(":start_logic:")+13)));
+            }catch(...){return false;}
+        }
+        else if(line.find("INIT:")!=std::string::npos)
+        {
+            line.erase(0,5);
+            if(line.find(":")!=std::string::npos)
+            {
+                initsig=line.substr(0,line.find(":"));
+                try
+                {
+                    initvalue=stoi((line.substr(line.find(":")+1)));
+                }catch(...){return false;}
+            }
+
         }
 
     } 
@@ -515,6 +536,10 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     //load units
     if(type=="AND")
     {
+        if(initsig==one)
+            AND_unit->input1=initvalue;
+        if(initsig==two)
+            AND_unit->input2=initvalue;
         AND_unit->s_input1=one;
         AND_unit->s_input2=two;
         AND_unit->s_output=three;
@@ -522,6 +547,10 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         AND_unit->name=name;
     }else if(type=="OR")
     {
+        if(initsig==one)
+            OR_unit->input1=initvalue;
+        if(initsig==two)
+            OR_unit->input2=initvalue;
         OR_unit->s_input1=one;
         OR_unit->s_input2=two;
         OR_unit->s_output=three;
@@ -530,6 +559,10 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     }
     else if(type=="NOR")
     {
+        if(initsig==one)
+            NOR_unit->input1=initvalue;
+        if(initsig==two)
+            NOR_unit->input2=initvalue;        
         NOR_unit->s_input1=one;
         NOR_unit->s_input2=two;
         NOR_unit->s_output=three;
@@ -538,6 +571,10 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     }
     else if(type=="NAND")
     {
+        if(initsig==one)
+            NAND_unit->input1=initvalue;
+        if(initsig==two)
+            NAND_unit->input2=initvalue;
         NAND_unit->s_input1=one;
         NAND_unit->s_input2=two;
         NAND_unit->s_output=three;
@@ -546,6 +583,10 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     }
     else if(type=="NOT")
     {
+        if(initsig==one)
+            NOT_unit->input1=initvalue;
+        if(initsig==two)
+            NOT_unit->input2=initvalue;
         NOT_unit->s_input1=one;
         NOT_unit->s_input2=one;
         NOT_unit->s_output=three;
@@ -672,10 +713,23 @@ int main(int argc, char **argv){ // links for each unit
         clocksyn=true;  
         CLK_S=!CLK_S;
     }
+    unsigned int val=0;
+    for(;val<INsig.size();val++)
+    {
+        unsigned int valy=0;
+        for(;valy<Outsig.size();valy++)
+        {
+            if(INsig[val]==Outsig[valy])
+            {
+                fprintf(stderr, "Same name used for global INPUT/OUTPUT singal\n");
+                return false;
+            }
+        }
+    }
     unit_names.clear();
 
 
-    unsigned int val=0;
+    val=0;
     //create Tstats for each signal and unit 
     for(;val<INsig.size();val++)
     {
