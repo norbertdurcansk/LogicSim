@@ -726,7 +726,7 @@ int main(int argc, char **argv){ // links for each unit
         {
             if(INsig[val]==Outsig[valy])
             {
-                fprintf(stderr, "Same name used for global INPUT/OUTPUT singal\n");
+                fprintf(stderr, "Same name used for global INPUT/OUTPUT signal\n");
                 return false;
             }
         }
