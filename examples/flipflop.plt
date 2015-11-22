@@ -1,4 +1,4 @@
-set terminal postscript eps  size 15, 10
+set terminal postscript eps  size 15, 20
 set output 'result/flipflop/flipflop.eps'
 
 

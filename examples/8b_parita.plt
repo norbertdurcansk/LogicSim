@@ -10,7 +10,7 @@ set rmargin 4
 
 set multiplot layout 44,1 title "8b_parita"
 
-set xrange [0 :200]
+set xrange [0 :500]
 set yrange [0 :2]
 
 unset xtics 
