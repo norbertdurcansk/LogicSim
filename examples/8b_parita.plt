@@ -1,4 +1,4 @@
-set terminal postscript eps  size 15, 40
+set terminal postscript eps  size 15, 60
 set output 'result/8b_parita/8b_parita.eps'
 
 
