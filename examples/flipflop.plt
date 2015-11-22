@@ -8,9 +8,9 @@ set lmargin 10
 set rmargin 4
 
 
-set multiplot layout 44,1 title "flipflop"
+set multiplot layout 7,1 title "flipflop"
 
-set xrange [0 :200]
+set xrange [0 :500]
 set yrange [0 :2]
 
 unset xtics 
@@ -34,7 +34,7 @@ set bmargin 4
 set xtics 10
 set ylabel 'Value' offset -1
 set xlabel 'Time' offset -1
-plot "result/flipflop/GNU_flipflop.dat" index 43 using 2:1  lt rgb "black" lw 5 with steps  title columnheader(1)
+plot "result/flipflop/GNU_flipflop.dat" index 6 using 2:1  lt rgb "black" lw 5 with steps  title columnheader(1)
 
 
 
