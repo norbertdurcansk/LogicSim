@@ -273,11 +273,13 @@ private:
 
 // CLK GENRATOR 
 class CLKGenerator :public Event{
-void Behavior() 
+private:
+    void Behavior() 
     {
         (new INSignal(CLK,CLK_S=!CLK_S))->Activate();
         //write to Tstats
         TstatCLK+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
+        Tstats[CLK]+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
         Activate(Time+CLK_freq);
    }
 };
@@ -317,13 +319,6 @@ void Tstatprint(unsigned int stat_type){
 
     if(stat_type==0)
     {
-        if(clocksyn)
-        {
-            Print("#===========================================\n#CLK values\nValue\tTime\n\n");
-            Print("%s",TstatCLK.c_str());
-            Print("#===========================================\n  \n");
-        }
-        Print("\n");
         for(auto x : Tstats)
         { 
             Print("\"%s\"\n",x.first.c_str() );
