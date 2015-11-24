@@ -41,15 +41,12 @@ plot "result/MUX/GNU_MUX.dat" index 15 using 2:1  lt rgb "green" lw 3  with step
 plot "result/MUX/GNU_MUX.dat" index 16 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
 plot "result/MUX/GNU_MUX.dat" index 17 using 2:1  lt rgb "green" lw 3  with steps  title columnheader(1)
 plot "result/MUX/GNU_MUX.dat" index 18 using 2:1  lt rgb "violet" lw 3  with steps  title columnheader(1)
-plot "result/MUX/GNU_MUX.dat" index 19 using 2:1  lt rgb "green" lw 3  with steps  title columnheader(1)
-plot "result/MUX/GNU_MUX.dat" index 20 using 2:1  lt rgb "violet" lw 3  with steps  title columnheader(1)
-plot "result/MUX/GNU_MUX.dat" index 21 using 2:1  lt rgb "green" lw 3  with steps  title columnheader(1)
 
 set bmargin 4
 set xtics 10
 set ylabel 'Value' offset -1
 set xlabel 'Time' offset -1
-plot "result/MUX/GNU_MUX.dat" index 22 using 2:1  lt rgb "black" lw 5 with steps  title columnheader(1)
+plot "result/MUX/GNU_MUX.dat" index 19 using 2:1  lt rgb "black" lw 5 with steps  title columnheader(1)
 
 
 

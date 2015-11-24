@@ -460,6 +460,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
 
             one=line.substr(0,line.find(":"));
             two=one;
+
             if(type!="NOT")
                 two=line.substr(line.find(":")+1);
 
@@ -469,9 +470,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             line.erase(0,line.find(".OUTPUT:"+name+":PINLIST:")+8+name.length()+9);
             three=line;
         }
-
-
-        else if((line.find("IN:")!=std::string::npos) && !synclock)
+        else if((line.find("IN:")!=std::string::npos) && !synclock && line.find("IN:")==0)
         {
             string signal=line.substr(line.find("IN:")+3);
             if(std::find(INsig.begin(), INsig.end(), signal) != INsig.end())
@@ -479,14 +478,13 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             INsig.push_back(signal);
 
         }
-        else if((line.find("OUT:")!=std::string::npos) && !synclock)
+        else if((line.find("OUT:")!=std::string::npos) && !synclock && line.find("OUT:")==0)
         {
             string signal=line.substr(line.find("OUT:")+4);
             if(std::find(Outsig.begin(), Outsig.end(), signal) != Outsig.end())
                     continue;
             Outsig.push_back(signal);
         }
-
         else if(synclock && line.find(":type:"+type)!=std::string::npos)
         {
            if(CLK!="" && CLK!=line.substr(0,line.find(":type:")))
