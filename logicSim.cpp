@@ -80,7 +80,8 @@ class INSignal : public Process {
 //check and set NOT Unit 
 //===============
  void zapisNOT::Behavior() { 
-        Seize(Units[val]);  // one process at time 
+        Seize(Units[val]);
+
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
@@ -115,7 +116,9 @@ class INSignal : public Process {
 //check and set AND Unit 
 //===============
  void zapisAND::Behavior() { 
-        Seize(Units[val]);  // one process at time 
+
+        Seize(Units[val]);
+
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
@@ -149,7 +152,9 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisOR::Behavior() { 
+
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
@@ -184,7 +189,9 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNOR::Behavior() { 
+
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
@@ -221,6 +228,7 @@ class INSignal : public Process {
 //===============
  void zapisNAND::Behavior() { 
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
