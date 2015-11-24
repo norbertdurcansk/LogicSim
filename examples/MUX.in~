@@ -7,7 +7,6 @@ IN:D3
 OUT:Y
 
 
-
 NOT_A:type:NOT
 NOT_A:delay:0
 .INPUT:NOT_A:PINLIST:A
