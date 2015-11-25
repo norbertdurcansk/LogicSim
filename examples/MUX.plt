@@ -8,7 +8,7 @@ set lmargin 10
 set rmargin 4
 
 
-set multiplot layout 23,1 title "MUX"
+set multiplot layout 20,1 title "MUX"
 
 set xrange [0 :500]
 set yrange [0 :2]
