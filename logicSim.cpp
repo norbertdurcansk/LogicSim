@@ -80,7 +80,8 @@ class INSignal : public Process {
 //check and set NOT Unit 
 //===============
  void zapisNOT::Behavior() { 
-        Seize(Units[val]);  // one process at time 
+        Seize(Units[val]);
+
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
@@ -115,7 +116,9 @@ class INSignal : public Process {
 //check and set AND Unit 
 //===============
  void zapisAND::Behavior() { 
-        Seize(Units[val]);  // one process at time 
+
+        Seize(Units[val]);
+
         hradlo->setvalues(input,value); // set values of the input 
 
         if(hradlo->outvalue()!=-1)    // if output can be solved 
@@ -149,7 +152,9 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisOR::Behavior() { 
+
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
@@ -184,7 +189,9 @@ class INSignal : public Process {
 //check and set OR Unit 
 //===============
  void zapisNOR::Behavior() { 
+
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
@@ -221,6 +228,7 @@ class INSignal : public Process {
 //===============
  void zapisNAND::Behavior() { 
         Seize(Units[val]);
+
         hradlo->setvalues(input,value);
 
         if(hradlo->outvalue()!=-1)    
@@ -273,11 +281,13 @@ private:
 
 // CLK GENRATOR 
 class CLKGenerator :public Event{
-void Behavior() 
+private:
+    void Behavior() 
     {
         (new INSignal(CLK,CLK_S=!CLK_S))->Activate();
         //write to Tstats
         TstatCLK+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
+        Tstats[CLK]+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
         Activate(Time+CLK_freq);
    }
 };
@@ -317,13 +327,6 @@ void Tstatprint(unsigned int stat_type){
 
     if(stat_type==0)
     {
-        if(clocksyn)
-        {
-            Print("#===========================================\n#CLK values\nValue\tTime\n\n");
-            Print("%s",TstatCLK.c_str());
-            Print("#===========================================\n  \n");
-        }
-        Print("\n");
         for(auto x : Tstats)
         { 
             Print("\"%s\"\n",x.first.c_str() );
@@ -460,6 +463,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
 
             one=line.substr(0,line.find(":"));
             two=one;
+
             if(type!="NOT")
                 two=line.substr(line.find(":")+1);
 
@@ -469,9 +473,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             line.erase(0,line.find(".OUTPUT:"+name+":PINLIST:")+8+name.length()+9);
             three=line;
         }
-
-
-        else if((line.find("IN:")!=std::string::npos) && !synclock)
+        else if((line.find("IN:")!=std::string::npos) && !synclock && line.find("IN:")==0)
         {
             string signal=line.substr(line.find("IN:")+3);
             if(std::find(INsig.begin(), INsig.end(), signal) != INsig.end())
@@ -479,14 +481,13 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
             INsig.push_back(signal);
 
         }
-        else if((line.find("OUT:")!=std::string::npos) && !synclock)
+        else if((line.find("OUT:")!=std::string::npos) && !synclock && line.find("OUT:")==0)
         {
             string signal=line.substr(line.find("OUT:")+4);
             if(std::find(Outsig.begin(), Outsig.end(), signal) != Outsig.end())
                     continue;
             Outsig.push_back(signal);
         }
-
         else if(synclock && line.find(":type:"+type)!=std::string::npos)
         {
            if(CLK!="" && CLK!=line.substr(0,line.find(":type:")))
