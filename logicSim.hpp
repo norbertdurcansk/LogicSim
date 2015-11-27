@@ -6,11 +6,28 @@
 using namespace std;
 map<string, string> Tstats;
 
+// facility for each Unit 
+#define MAX_UNIT 200 //MAX number of units in one circuit
+Facility Units[MAX_UNIT];   // each unit has its own facility for set up pin values 
+vector<string> unit_names; //names of units 
+vector<string>INsig; //Input signals
+vector<string>Outsig; //Output signals
+string CLK=""; //CLK 
+string TstatCLK=""; // CLK Statistic
+bool clocksyn=false; //CLK enabled 
+int CLK_freq=0; // frequency in ns
+int CLK_S=0; //start value 
+
+//Functions Statistic,Error
+void Tstatprint();
+void ErrorFun();
+
 // class implements  unit AND with two outputs and one input 
 class AND{
      public:
         string name; //name of the unit
         string Tstat ="";
+        int clk=-1;
         int input1=-1;
         int input2=-1;
         int output=-1;
@@ -19,17 +36,17 @@ class AND{
         string s_input1;
         string s_input2;
         string s_output;
-        void setvalues(string pad, int value){if(pad==s_input1)input1=value;if(pad==s_input2)input2=value;}
+        void setvalues(string pad, int value){if(pad==s_input1)input1=value;if(pad==s_input2)input2=value;if(pad==CLK)clk=value;}
         string soutvalue(){return s_output;}
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=(input1 & input2); return -1;}
-        void init(){ input1=-1;input2=-1;output=-1;}
+        void init(){ input1=-1;input2=-1;output=-1;clk=-1;}
         bool in(string pad){if(pad!=s_input1 && pad!=s_input2) return false; return true;}
 };
 
 // class implements  unit NOT with two outputs and one input 
 class NOT:public AND {
      public:
-        void setvalues(string pad, int value){if(pad==s_input1 || pad==s_input2 ){input1=value;input2=value;}}
+        void setvalues(string pad, int value){if(pad==s_input1 || pad==s_input2 ){input1=value;input2=value;}if(pad==CLK)clk=value;}
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=!(input1 & input2); return -1;}
 };
 // class implements  unit OR with two outputs and one input 
@@ -134,19 +151,6 @@ public:
     int val;
     zapisNOR(NOR *hradlo,int value,string input,int val){this->hradlo=hradlo;this->value=value;this->input=input;this->val=val;};
 };
-#define MAX_UNIT 200 //MAX number of units in one circuit
-// facility for each Unit 
-Facility Units[MAX_UNIT];   // each unit has its own facility for set up pin values 
-vector<string> unit_names; //names of units 
-vector<string>INsig; //Input signals
-vector<string>Outsig; //Output signals
-string CLK=""; //CLK 
-string TstatCLK=""; // CLK Statistic
-bool clocksyn=false; //CLK enabled 
-int CLK_freq=0; // frequency in ns
-int CLK_S=0; //start value 
 
-//Functions Statistic,Error
-void Tstatprint();
-void ErrorFun();
+
 #endif

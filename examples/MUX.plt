@@ -1,4 +1,4 @@
-set terminal postscript eps  size 15, 20
+set terminal postscript eps  size 15, 25
 set output 'result/MUX/MUX.eps'
 
 

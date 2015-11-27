@@ -97,7 +97,7 @@ class INSignal : public Process {
 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
-                else if(input==CLK && CLK_S==1)//if CLK enabled 
+                else if(clocksyn && hradlo->clk==1)//if CLK enabled 
                 {
                     Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
@@ -133,7 +133,7 @@ class INSignal : public Process {
 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
-                else if(input==CLK && CLK_S==1)
+                else if(clocksyn && hradlo->clk==1)
                 {
                     Wait(hradlo->delay); // delay of the Unit
                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
@@ -170,7 +170,7 @@ class INSignal : public Process {
 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
-                else if(input==CLK && CLK_S==1)
+                else if(clocksyn && hradlo->clk==1)
                 {
                     Wait(hradlo->delay); // delay of the Unit
                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
@@ -207,7 +207,7 @@ class INSignal : public Process {
 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
-                else if(input==CLK && CLK_S==1)
+                else if(clocksyn && hradlo->clk==1)
                 {
                     Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
@@ -244,7 +244,7 @@ class INSignal : public Process {
 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
-                else if(input==CLK && CLK_S==1)
+                else if(clocksyn && hradlo->clk==1)
                 {
                     Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
@@ -420,7 +420,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
     //parsing Document, search for our unit
     for( std::string line; getline( input, line ); )
     {   
-          if(line.find("#")!=std::string::npos && line.find("#")==0 )
+        if(line.find("#")!=std::string::npos && line.find("#")==0 )
             continue;
 
 
