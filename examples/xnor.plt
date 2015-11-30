@@ -20,15 +20,15 @@ unset xlabel
 
 plot "result/xnor/GNU_xnor.dat"  index 0 using 2:1 lt rgb "violet" lw 3 with steps  title columnheader(1) 
 set tmargin 0
-plot "result/xnor/GNU_xnor.dat" index 1 using 2:1 lt rgb "green" lw 3  with steps  title columnheader(1)
+plot "result/xnor/GNU_xnor.dat" index 5 using 2:1 lt rgb "green" lw 3  with steps  title columnheader(1)
 
-plot "result/xnor/GNU_xnor.dat" index 2 using 2:1  lt rgb "blue" lw 3 with steps  title columnheader(1)
+plot "result/xnor/GNU_xnor.dat" index 1 using 2:1  lt rgb "blue" lw 3 with steps  title columnheader(1)
 
 
+plot "result/xnor/GNU_xnor.dat" index 6 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
+plot "result/xnor/GNU_xnor.dat" index 2 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
 plot "result/xnor/GNU_xnor.dat" index 3 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
 plot "result/xnor/GNU_xnor.dat" index 4 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
-plot "result/xnor/GNU_xnor.dat" index 5 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
-plot "result/xnor/GNU_xnor.dat" index 6 using 2:1  lt rgb "red" lw 3  with steps  title columnheader(1)
 
 set bmargin 4
 set xtics 10
