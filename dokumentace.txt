@@ -1,0 +1,99 @@
+////////////
+1Úvod
+/////////////
+Táto práca vznikla ako projekt do predmetu Modelování a simulace.Práca sa zaoberá simuláciou čislicových obvodov zložených z hradiel AND, OR, NAND, NOR, NOT. Na základe týchto modelov a experimentov je znázornené chovanie systému pri rôznych vstupoch.Zmyslom projektu je demonštrovať zpôsob práce logických obvodov.
+////////////
+1.1Riešitelia a zdroje informácií
+///////////
+Autormi projektu su Norbert Ďurčanský a Ján Jusko. Pri tvorbe boli využité znalosti získané z predmetu IMS, materiálov a zdrojových kodov knižnice simlib.
+///////////
+1.2Validita modelu
+//////////
+Validita navrhovaného modelu bola priebežne experimentálne overená. Toto overenie bolo prevedené pomocou boolovej algebry, ktorej výsledky sme porovnali s nami nameranými hodnotami.Preto považujeme náš model za validný.
+
+////
+2. Rozbor témy a použitie metód
+////
+Pre modelovanie a simuláciu logických obvodov je nutné poznať špecifikácie jednotlivých hradiel, ich vstupy a výstupy. Pomocou týchto hradiel sme vytvorili niekoľko zakladných obvodov, ktoré su definované logickou funkciou.
+Číslicový obvod je definovaný pomocou NETLIST, v ktorom je možné definovať jednotlivé hradlá, globalné aj lokalné vstupy/výstupy, oneskorenie hradiel, prípadne synchronizačný signal, ktorý sa pripojí na všetky hradlá.
+Pre naše experimenty sme zvolili tieto obvody: 8bitová parita, DC obvod, flipflop obvod, multiplexor, xnor a xor.
+///////
+2.1 Použité postupy pre vytvaranie všeobecného modelu
+//////
+Autory pouižili jazyk C++, pretože umožňuje obejktový návrh, ktorý sa hodí na riešenie.Ďalej sme použili  knižnicu SIMLIB, pretože poskytuje triedy vhodné pre tvorbu simulácie nášho zadania. Použité konštrukcie a metódy je možné nájsť v slajdoch k predmetu IMS a slajdoch k prvému a druhému demonštračnému cvičeniu z tohto predmetu.
+
+///
+3. Koncept modelu
+////
+Cieľom projektu je podľa zadaného modelu vo forme NETLIST simulovať jednotlivé vstupy/výstupy nahodným generováním 0/1 na globálnych vstupoch obvodu. K docieleniu správneho a validného modelu nieje potrebné simulovať oneskorenie na na vodičoch.
+
+//
+3.1 Návrh konceptuálneho modelu
+//
+Vstupom simulácie je generovanie globálnych vstupov obvodu s exponenciálnym rozložením 20ms. Signál postupne prechádza systémom, v ktorom každé hradlo ma svoju obslúžnu linku, do ktorej prichádzajú jednotlivé signály a nastavuju vnutorné hodnoty hradla. Po nastavení všetkých hodnot sa generuje lokálny výstup hradla, ktorý môže slúžiť ako globálny výstup alebo lokalný vstup pre ďalšie hradlá.
+
+//
+3.2
+//
+Pretože abstraktný model pre náš logický obvod je iný vybrali sme logický obvod XOR ktorý sme popísali pomocou Petrího siete na základe získaných údajov uvedených vyššie.
+----pridat obrazok xor.eps
+
+
+4.Architektúra simulačného modelu 
+V implementácií sú využité dva generátory typu Event. Jeden na generovanie globálnych vstupov a druhý pre použitie synchronizačného obvodu. Generátor vstupov vytvára signály a je aktivovaný za časový úsek daný exponenciálnym rozložením 20ms.Na generovanie hodnôt signalov je použitá metóda Random.Signál je modelovaný ako typ process, ktorý podľa toho, či je na vstupe daného hradla, aktivuje proces zápisu do tohto hradla. Každé hradlo ma vlastnú obslúžnu linku, v ktorej nastavuje príslušne hodnoty a generuje výstup.Výstup hradla je vytvorenie a aktivácia nového signálu typu process. Pre zdokumentovanie lokálnych a globálnych hodnot obvodu sme použili vlastné funkcie, ktoré opisujú káždé hradlo, lokálne a globálne zmeny, doležité signály. Pre lepšiu zmenu oneskorenia na hradlách je možné túto hodnotu definovať v našom NETLIST súbore. V našich experimentoch používame oneskorenie:
+AND:4ms
+OR:2ms
+NOR:3ms
+NOT:1ms
+NAND:5ms
+
+4.1 Ďalšie súbory
+Projekt obsahuje okrem zdrojových suborov aj súbor syntaxNetlist, ktorý obsahuje definíciu syntaxe vstupnej schémy obvodu.
+
+///
+5. Simulačné experimenty
+///
+Autory vytvorili jednoduché obvody realných systémov, na ktorých robili experimenty, zkúmali zmeny stavov a overovali, či sú výstupy správne.
+//
+5.1 Obecný popis simulačných experimentov
+//
+Experimenty prebiehali v nasledujúcich krokoch
+
+Generovanie globalných vstupov obvodu
+Ak je použitý synchronizačný obvod, generovanie synchronizačného signálu
+Spustenie simulácie
+Zápis výsledkov a generovanie grafu 
+Overenie a porovnanie výsledkov s výsledkami logickej funkcie obvodu
+
+5.2 Jednotlivé experimenty
+
+5.2.1 Experiment 1
+Autory si na experiment zvolili jeden zo základných čislicových obvodov, obvod XOR
+xor tabulka 
+0 0 0
+0 1 1
+1 0 1
+1 1 0
+graf vloz obrazok xor2
+----dopis experimenty ake mame aspon 2
+
+
+
+
+5.3 Záver Experimentov
+Celkom bolo prevedených 7 experimentov. Boli zamerané na kombinačné, sekvenčné obvody a synchronizačné obvody. Výsledkami experimentov sme overili činnost čislicových obvodov a overili validitu našeho modelu.
+
+Výsledky experimentov  sú dostupné v súbore result/"meno_prikladu"/"meno_prikladu".dat
+Popis jednotlivých obvodov je dostupný v súbore examples/"meno_prikladu"/"meno_prikladu".in a v priečinku ims_schemes
+//
+
+
+6.Zhrnutie a Záver
+
+Autory došli k záveru, že model simulácie čislicových obvodov je dostatočne vierohodný, aj ked neboli použité všetky informácie o obvode.Tento model je schopný simulovať ľubovoľný čislicový obvod podľa zadania.
+
+Referencie 
+
+
+
+

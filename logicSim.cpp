@@ -537,7 +537,7 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
       
     
     //if something is not defined error
-    if((one=="" || two=="" || three=="" || name=="" || delay==-1 || INsig.empty() || Outsig.empty()) && (!synclock))
+    if((one=="" || two=="" || three=="" || name=="" || INsig.empty() || Outsig.empty()) && (!synclock))
         return false;
     //load units
     if(type=="AND")
@@ -549,7 +549,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         AND_unit->s_input1=one;
         AND_unit->s_input2=two;
         AND_unit->s_output=three;
-        AND_unit->delay=delay;
+        if(delay!=-1)
+            AND_unit->delay=delay;
         AND_unit->name=name;
     }else if(type=="OR")
     {
@@ -560,7 +561,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         OR_unit->s_input1=one;
         OR_unit->s_input2=two;
         OR_unit->s_output=three;
-        OR_unit->delay=delay;
+        if(delay!=-1)
+            OR_unit->delay=delay;
         OR_unit->name=name;
     }
     else if(type=="NOR")
@@ -572,7 +574,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         NOR_unit->s_input1=one;
         NOR_unit->s_input2=two;
         NOR_unit->s_output=three;
-        NOR_unit->delay=delay;
+        if(delay!=-1)
+            NOR_unit->delay=delay;
         NOR_unit->name=name;
     }
     else if(type=="NAND")
@@ -584,7 +587,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         NAND_unit->s_input1=one;
         NAND_unit->s_input2=two;
         NAND_unit->s_output=three;
-        NAND_unit->delay=delay;
+        if(delay!=-1)
+            NAND_unit->delay=delay;
         NAND_unit->name=name;
     }
     else if(type=="NOT")
@@ -596,7 +600,8 @@ bool LoadUnit(char *file,AND *AND_unit,OR *OR_unit,NOR *NOR_unit,NOT *NOT_unit,N
         NOT_unit->s_input1=one;
         NOT_unit->s_input2=one;
         NOT_unit->s_output=three;
-        NOT_unit->delay=delay;
+        if(delay!=-1)
+            NOT_unit->delay=delay;
         NOT_unit->name=name;
     }
     return true;

@@ -32,7 +32,7 @@ class AND{
         int input2=-1;
         int output=-1;
         int lastout=0;
-        int delay=0;
+        int delay=4;
         string s_input1;
         string s_input2;
         string s_output;
@@ -46,24 +46,28 @@ class AND{
 // class implements  unit NOT with two outputs and one input 
 class NOT:public AND {
      public:
+        int delay=1;
         void setvalues(string pad, int value){if(pad==s_input1 || pad==s_input2 ){input1=value;input2=value;}if(pad==CLK)clk=value;}
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=!(input1 & input2); return -1;}
 };
 // class implements  unit OR with two outputs and one input 
 class OR : public AND{
      public:
+        int delay=2;
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=(input1 | input2); return -1;}
 };
 
 // class implements  unit NOR with two outputs and one input 
 class NOR: public AND {
      public:
+        int delay=3;
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=!(input1 | input2); return -1;}
 };
 
 // class implements  unit NAND with two outputs and one input 
 class NAND: public AND {
      public:
+        int delay=5;
         int outvalue(){if(input1!=-1 && input2!=-1 ) return output=!(input1 & input2); return -1;}
 };
 
