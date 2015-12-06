@@ -5,7 +5,7 @@
 #include <utility>
 using namespace std;
 map<string, string> Tstats;
-
+map<string, string> keepsignal;
 // facility for each Unit 
 #define MAX_UNIT 200 //MAX number of units in one circuit
 Facility Units[MAX_UNIT];   // each unit has its own facility for set up pin values 

@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "logicSim.hpp"
-
+Store Centrala("Centrála",3);
 // random number 0...1
 int Randomsig() {
     return int(2*Random()); //  0 .. 1
@@ -76,6 +76,8 @@ class INSignal : public Process {
             }
     }
 };
+
+
 //===============
 //check and set NOT Unit 
 //===============
@@ -83,23 +85,23 @@ class INSignal : public Process {
         Seize(Units[val]);
 
         hradlo->setvalues(input,value); // set values of the input 
-
         if(hradlo->outvalue()!=-1)    // if output can be solved 
         {       
                if(!clocksyn)
                 {   
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //GNU STATISTIC
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+"-"+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //User Stat
                     hradlo->lastout=hradlo->output; // lastvalue set
                     int  val1=hradlo->outvalue(); // sup val
                     hradlo->init();   // init values 
-
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
                 }
                 else if(clocksyn && hradlo->clk==1)//if CLK enabled 
                 {
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+"-"+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -109,7 +111,6 @@ class INSignal : public Process {
 
                 }
         }
-
         Release(Units[val]); // leave 
     }
 //===============
@@ -117,15 +118,18 @@ class INSignal : public Process {
 //===============
  void zapisAND::Behavior() { 
 
+//printf("%s %i %s\n",input.c_str(),value,to_string(Time).c_str());
+
         Seize(Units[val]);
-
         hradlo->setvalues(input,value); // set values of the input 
-
         if(hradlo->outvalue()!=-1)    // if output can be solved 
-        {       if(!clocksyn)
+        {   
+           
+            if(!clocksyn)
                 {   
-                    Wait(hradlo->delay); // delay of the Unit
-                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
+                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";     
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
                     int  val1=hradlo->outvalue(); // sup val
@@ -135,17 +139,16 @@ class INSignal : public Process {
                 }
                 else if(clocksyn && hradlo->clk==1)
                 {
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
                     int  val1=hradlo->outvalue(); // sup val
                     hradlo->init();   // init values 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
-
                 }
         }
-
         Release(Units[val]); // leave 
     }
 //===============
@@ -161,7 +164,8 @@ class INSignal : public Process {
         {       
                 if(!clocksyn)
                 {   
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -172,7 +176,8 @@ class INSignal : public Process {
                 }
                 else if(clocksyn && hradlo->clk==1)
                 {
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                    Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -182,6 +187,7 @@ class INSignal : public Process {
 
                 }
         }
+
 
         Release(Units[val]);
     }
@@ -198,7 +204,8 @@ class INSignal : public Process {
         {       
                if(!clocksyn)
                 {   
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -209,7 +216,8 @@ class INSignal : public Process {
                 }
                 else if(clocksyn && hradlo->clk==1)
                 {
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -219,6 +227,7 @@ class INSignal : public Process {
 
                 }
         }
+
 
         Release(Units[val]);
     }
@@ -235,7 +244,8 @@ class INSignal : public Process {
         {       
                if(!clocksyn)
                 {   
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
@@ -246,51 +256,93 @@ class INSignal : public Process {
                 }
                 else if(clocksyn && hradlo->clk==1)
                 {
-                    Wait(hradlo->delay); // delay of the Unit
+                    if(hradlo->lastout!=hradlo->output)
+                        Wait(hradlo->delay); // delay of the Unit
                     Tstats[hradlo->name]+=to_string(hradlo->output)+"\t"+to_string(Time)+"\n";
                     hradlo->Tstat+=to_string(val)+"\t"+to_string(hradlo->input1)+"|"+to_string(hradlo->input2)+"\t"+to_string(hradlo->output)+"\t"+to_string(Time)+"\n"; //write to stat
                     hradlo->lastout=hradlo->output; // lastvalue set
                     int  val1=hradlo->outvalue(); // sup val
                     hradlo->init();   // init values 
                     (new INSignal(hradlo->soutvalue().c_str(),val1))->Activate();
-
                 }
         }
-
         Release(Units[val]);
     }
-
+//======================
+//INPUT signal keeper , keeps signal online
+//======================
+class signalKeeper: public Event
+{
+    public:
+        map<string, int> keep;
+        bool clk=false;
+    private:
+        void Behavior() 
+        {
+            for(auto x : keep)
+            { 
+                (new INSignal(x.first,x.second))->Activate();
+            }
+            Activate(Time+1);
+       }
+};
 //======================
 //INPUT signal generators
 //======================
-class Generator : public Event {       
-private:
-    void Behavior() 
-    {
-        int rand=Randomsig();
-        for (unsigned i=0; i < INsig.size(); i++)   
+class Generator : public Event {  
+    public:
+        signalKeeper *keeper=NULL;  
+        bool enabled=false; 
+    private:
+        void Behavior() 
         {
-            (new INSignal(INsig[i],rand))->Activate();
+            int rand=Randomsig();
+            for (unsigned i=0; i < INsig.size(); i++)   
+            {
+                (new INSignal(INsig[i],rand))->Activate();
 
-            Tstats[INsig[i]]+=to_string(rand)+"\t"+to_string(Time)+"\n";
-            rand=Randomsig();
-        }
-        Activate(Time+Exponential(20));
-   }
+                if(keeper==NULL)
+                { 
+                    keeper=new signalKeeper(); 
+                }
+                keeper->keep[INsig[i]]=rand;
+                Tstats[INsig[i]]+=to_string(rand)+"\t"+to_string(Time)+"\n";
+                rand=Randomsig();
+            }
+            if(enabled==false)
+            {
+                keeper->Activate(); 
+                enabled=true;
+            }
+            Activate(Time+Exponential(20));
+       }
 };
 
-// CLK GENRATOR 
+// CLK GENERATOR 
 class CLKGenerator :public Event{
-private:
-    void Behavior() 
-    {
-        (new INSignal(CLK,CLK_S=!CLK_S))->Activate();
-        //write to Tstats
-        TstatCLK+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
-        Tstats[CLK]+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
-        Activate(Time+CLK_freq);
-   }
+public:
+    signalKeeper *keeper=NULL;   
+    bool enabled=false;
+    private:
+        void Behavior() 
+        {
+            (new INSignal(CLK,CLK_S=!CLK_S))->Activate();
+            if(keeper==NULL)
+                keeper=new signalKeeper();
+            keeper->keep[CLK]=CLK_S;
+            keeper->clk=true;
+            if(enabled==false)
+            {
+                keeper->Activate(); 
+                enabled=true;
+            }
+            //write to Tstats
+            TstatCLK+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
+            Tstats[CLK]+=to_string(CLK_S)+"\t"+to_string(Time)+"\n";
+            Activate(Time+CLK_freq);
+       }
 };
+
 
 
 //return number of units to create
@@ -328,7 +380,7 @@ void Tstatprint(unsigned int stat_type){
     if(stat_type==0)
     {
         for(auto x : Tstats)
-        { 
+        {   
             Print("\"%s\"\n",x.first.c_str() );
             Print("%s\n  \n",x.second.c_str());
         }
@@ -777,7 +829,7 @@ int main(int argc, char **argv){ // links for each unit
     }
     
     //SIMULATION PROCESS
-    Init(0,500); //time of simulation 
+    Init(0,500);//time of simulation 
     (new Generator())->Activate();
     //if CLK enabled generate
     if(clocksyn)
